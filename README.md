@@ -61,6 +61,11 @@ BUYER_KEY=0x… python pay.py
   must be different addresses.
 - **Replays are safe.** Re-sending the same signed authorization returns the same
   response without charging again.
+- **One URL, two facilitators, nothing to configure.** USDC on Arc (`eip155:5042`)
+  settles through Circle's x402 facilitator; Base, Polygon, Arbitrum and Solana
+  settle through Coinbase's. The client sees one standard quote either way.
+- **No redirects.** The URL answers directly with or without its trailing slash, so
+  guards that fetch with `redirect: "error"` are fine.
 - **Browsers work too.** The endpoints send CORS headers, expose `PAYMENT-REQUIRED`
   / `PAYMENT-RESPONSE`, and accept the payment headers on preflight.
 - **Discovery:** [`/.well-known/x402`](https://x402.spendthebits.com/.well-known/x402),
