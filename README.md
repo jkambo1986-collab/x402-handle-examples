@@ -34,6 +34,21 @@ BUYER_KEY=0x<key of a wallet holding USDC on Base> node pay.mjs
 [`typescript/pay.mjs`](typescript/pay.mjs) is the library's own README example with
 a handle URL in it — 15 lines, nothing SpendTheBits-specific.
 
+## Pay it with a pre-flight check (`@402signal/route-guard`)
+
+```sh
+cd typescript && npm install
+BUYER_KEY=0x… node pay-guarded.mjs
+```
+
+[`typescript/pay-guarded.mjs`](typescript/pay-guarded.mjs) is the same client with
+[402Signal](https://402signal.com)'s buyer guard hooked in before signing. The guard
+re-reads the handle's unpaid 402 itself, verifies signed evidence of the offer against
+a pinned log key, and aborts unless the price, recipient, token and network are exactly
+what the client selected. It costs the buyer $0.003 per check, paid from the same wallet.
+Handles pass its readiness rules: no redirects, standard fields only, Base quoted first,
+and a Bazaar descriptor that declares the GET takes no inputs.
+
 ## Pay it — Python (`x402`)
 
 ```sh
