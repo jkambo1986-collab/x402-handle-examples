@@ -1,0 +1,7 @@
+{
+  "name": "pay-a-spendthebits-handle",
+  "private": true,
+  "type": "module",
+  "scripts": { "quote": "node quote.mjs", "pay": "node pay.mjs" },
+  "dependencies": { "@x402/evm": "^2.26.0", "@x402/fetch": "^2.26.0", "viem": "^2.0.0" }
+}
