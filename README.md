@@ -106,6 +106,17 @@ no gas paid by the buyer:
 | `typescript/pay.mjs` (`@x402/fetch` 2.26) | [`0x471653dc…11d7bf`](https://basescan.org/tx/0x471653dcb314d8fa68fb4704ca28873658e51f4266ad5de57904d4203f11d7bf) |
 | `python/pay.py` (`x402` 2.23) | [`0xbba32fe4…439923`](https://basescan.org/tx/0xbba32fe41a6d93795830ac5aefed24dc68dc008006aa89943a4ffb841e439923) |
 
+## More than pay-per-call
+
+Everything below works with the same stock clients, and every line was run with real
+USDC on Base (2026-09-20).
+
+| What | How | Proof |
+|---|---|---|
+| **Referral links** | add `?ref=<handle>` to a resource URL. When the seller offers a referral share, the quote's `payTo` is an immutable [0xSplits](https://splits.org) contract that pays seller, referrer and platform fee on-chain. | payment [`0x6894d3f8…`](https://basescan.org/tx/0x6894d3f8c6f75a22b9fff5f113123e27b6bd2c9b7f9b85aa5143dff2b95cfba5) → split `0x82B3…f039` paid out three ways |
+| **Passes** | pay `<resource>pass/` once with `pay.mjs` / `pay.py`, then call free with [`python/use_pass.py`](python/use_pass.py) (the official x402 `sign-in-with-x` extension). An expired pass simply gets the ordinary 402. | purchase [`0x812d80eb…`](https://basescan.org/tx/0x812d80eb7665de0e071a91692a484e63f23413e89458ead5a491f47271734aec), then a free `200`; a replayed proof is refused |
+| **Refund window** | a seller that promises refunds sends `X-Refund-Window`. Ask with [`python/request_refund.py`](python/request_refund.py): a signature by the wallet that paid, keyed on the settlement transaction. | request accepted `201`; a stranger's signature `403`; a second request `409` |
+
 ## Verified with
 
 `@x402/fetch` 2.26 · `x402-fetch` 1.2 (protocol v1) · Python `x402` 2.23 — each reads
