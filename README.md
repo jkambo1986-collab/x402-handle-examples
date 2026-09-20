@@ -9,8 +9,8 @@ https://x402.spendthebits.com/@stbclaudeprod/proof/
 
 is an ordinary [x402](https://x402.org) resource. An unpaid request answers
 `402 Payment Required` with everything a client needs — price, token, network and
-the seller's address — in the standard places: the `PAYMENT-REQUIRED` header
-(protocol v2) and the JSON body (v1, for legacy clients). Your client signs a USDC
+the seller's address — in the standard place: one x402 v2 quote in the
+`PAYMENT-REQUIRED` header, repeated identically in the JSON body. Your client signs a USDC
 authorization, retries, and gets the resource plus a settlement receipt.
 
 The seller is a person's self-custody wallet. SpendTheBits never holds the money:
@@ -49,13 +49,10 @@ what the client selected. It costs the buyer $0.003 per check, paid from the sam
 Handles pass its readiness rules: no redirects, standard fields only, Base quoted first,
 and a Bazaar descriptor that declares the GET takes no inputs.
 
-> **Current limitation (2026-09-20):** 402Signal's free readiness check reports the
-> handle live, payable and invocable, but its *bound-evidence* check declines with
-> `ambiguous_challenge`, so the guard aborts before signing (no fee, no payment).
-> Handles are dual-stack: the `PAYMENT-REQUIRED` header carries the x402 v2 quote
-> and the JSON body carries the v1 quote for legacy clients, and the guard requires
-> the two to be identical. Run the guard with `onMiss: "allow"` to treat that as
-> advisory, or use `pay.mjs`.
+> **Checked 2026-09-20:** 402Signal's bound-evidence check binds a handle (selected
+> offer: USDC on Base, signed decision issued). Handles answer with ONE x402 v2 quote —
+> the `PAYMENT-REQUIRED` header and the JSON body are identical — which is what a guard
+> that compares the two needs.
 
 ## Pay it — Python (`x402`)
 
@@ -119,8 +116,10 @@ USDC on Base (2026-09-20).
 
 ## Verified with
 
-`@x402/fetch` 2.26 · `x402-fetch` 1.2 (protocol v1) · Python `x402` 2.23 — each reads
-the quote, signs and retries against a live handle with no SpendTheBits-specific code.
+`@x402/fetch` 2.26 · Python `x402` 2.23 — each reads the quote, signs and retries against
+a live handle with no SpendTheBits-specific code. Legacy v1 clients (`x402-fetch` 1.x):
+v1 payments are still accepted, and the same path on the API host
+(`https://backend-production-716d3.up.railway.app/x402/@handle/resource/`) quotes v1.
 
 ## Sell something yourself
 
