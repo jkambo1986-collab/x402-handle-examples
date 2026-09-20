@@ -49,6 +49,14 @@ what the client selected. It costs the buyer $0.003 per check, paid from the sam
 Handles pass its readiness rules: no redirects, standard fields only, Base quoted first,
 and a Bazaar descriptor that declares the GET takes no inputs.
 
+> **Current limitation (2026-09-20):** 402Signal's free readiness check reports the
+> handle live, payable and invocable, but its *bound-evidence* check declines with
+> `ambiguous_challenge`, so the guard aborts before signing (no fee, no payment).
+> Handles are dual-stack: the `PAYMENT-REQUIRED` header carries the x402 v2 quote
+> and the JSON body carries the v1 quote for legacy clients, and the guard requires
+> the two to be identical. Run the guard with `onMiss: "allow"` to treat that as
+> advisory, or use `pay.mjs`.
+
 ## Pay it — Python (`x402`)
 
 ```sh
@@ -86,6 +94,17 @@ BUYER_KEY=0x… python pay.py
 - **Discovery:** [`/.well-known/x402`](https://x402.spendthebits.com/.well-known/x402),
   [`/llms.txt`](https://x402.spendthebits.com/llms.txt) and
   [`/openapi.json`](https://x402.spendthebits.com/openapi.json) list public resources.
+
+## Proof: real payments from unmodified clients
+
+Both of these are the files in this repo, run as-is against the live handle on
+Base mainnet (2026-09-20), $0.01 USDC each, settled through the facilitator with
+no gas paid by the buyer:
+
+| Client | Settlement |
+|---|---|
+| `typescript/pay.mjs` (`@x402/fetch` 2.26) | [`0x471653dc…11d7bf`](https://basescan.org/tx/0x471653dcb314d8fa68fb4704ca28873658e51f4266ad5de57904d4203f11d7bf) |
+| `python/pay.py` (`x402` 2.23) | [`0xbba32fe4…439923`](https://basescan.org/tx/0xbba32fe41a6d93795830ac5aefed24dc68dc008006aa89943a4ffb841e439923) |
 
 ## Verified with
 
