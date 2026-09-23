@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "quote": "node quote.mjs",
-    "pay": "node pay.mjs"
+    "pay": "node pay.mjs",
+    "ask": "node ask-to-pay.mjs"
   },
   "dependencies": {
     "@402signal/route-guard": "^0.7.7",

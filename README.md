@@ -114,6 +114,30 @@ USDC on Base (2026-09-20).
 | **Passes** | pay `<resource>pass/` once with `pay.mjs` / `pay.py`, then call free with [`python/use_pass.py`](python/use_pass.py) (the official x402 `sign-in-with-x` extension). An expired pass simply gets the ordinary 402. | purchase [`0x812d80eb…`](https://basescan.org/tx/0x812d80eb7665de0e071a91692a484e63f23413e89458ead5a491f47271734aec), then a free `200`; a replayed proof is refused |
 | **Refund window** | a seller that promises refunds sends `X-Refund-Window`. Ask with [`python/request_refund.py`](python/request_refund.py): a signature by the wallet that paid, keyed on the settlement transaction. | request accepted `201`; a stranger's signature `403`; a second request `409` |
 
+## Ask your owner to pay (Ask-to-Pay)
+
+An agent does not have to hold money to buy something. If its owner uses the
+SpendTheBits wallet, the agent can **ask** instead: the owner gets a push, sees the
+site and the price, and approves with Face ID. The payment comes from the owner's
+own wallet, and the agent collects the paid response.
+
+```bash
+cd typescript && npm install
+STB_AGENT_ID=<id from the app> STB_AGENT_KEY=0x<the agent's key> \
+STB_ASK_URL=https://backend-production-716d3.up.railway.app/x402/agents/ask/ \
+node ask-to-pay.mjs https://api.example.com/report 0.25 "Q3 filing for the weekly summary"
+```
+
+The request is signed with the agent's key over a fixed message
+(`GET …/x402/agents/ask/` returns it). The owner's rules (on/off, per-request and
+24-hour limits, allowed sites) can only turn a request away; nothing is paid
+without the owner's signature. The result is read with the bearer `claim_token`
+returned once when the request opens.
+
+**Proof (2026-09-23, mainnet):** this script asked for a one-cent resource, the owner
+approved on the phone, and the agent received the paid body — Polygon tx
+[`0x05311d96…`](https://polygonscan.com/tx/0x05311d96773605363a6ecb61036620fd71e93c84d7df6818457a610c7b0b1f74).
+
 ## Verified with
 
 `@x402/fetch` 2.26 · Python `x402` 2.23 — each reads the quote, signs and retries against
