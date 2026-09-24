@@ -114,6 +114,54 @@ USDC on Base (2026-09-20).
 | **Passes** | pay `<resource>pass/` once with `pay.mjs` / `pay.py`, then call free with [`python/use_pass.py`](python/use_pass.py) (the official x402 `sign-in-with-x` extension). An expired pass simply gets the ordinary 402. | purchase [`0x812d80eb…`](https://basescan.org/tx/0x812d80eb7665de0e071a91692a484e63f23413e89458ead5a491f47271734aec), then a free `200`; a replayed proof is refused |
 | **Refund window** | a seller that promises refunds sends `X-Refund-Window`. Ask with [`python/request_refund.py`](python/request_refund.py): a signature by the wallet that paid, keyed on the settlement transaction. | request accepted `201`; a stranger's signature `403`; a second request `409` |
 
+## Buy a gift card (a real purchase, not another API call)
+
+Every gift card in the SpendTheBits store is an x402 resource:
+
+```
+https://x402.spendthebits.com/@stb/cards/<country>/<brand>/<amount>/
+                                         usa       amazon-com  25
+```
+
+```bash
+cd typescript && npm install
+BUYER_KEY=0x<agent key> node buy-gift-card.mjs usa amazon-com 10          # price it
+BUYER_KEY=0x<agent key> node buy-gift-card.mjs usa amazon-com 10 --pay    # buy it
+node gift-card-status.mjs <status_url> <claim_token>                     # check it
+```
+
+Two payments, in this order, so an unpaid probe never creates an order at the
+card provider:
+
+1. **Lock the price.** The card URL answers `402` for a quote fee of a few cents.
+   Paying it creates the order at the provider's exact price and returns
+   `total_usdc`, `pay_url`, `status_url` and a `claim_token`.
+2. **Pay the order.** `pay_url` quotes the exact total with `payTo` = a per-order
+   forwarder contract on Base. Its terms are part of its address: forward the USDC
+   to the card provider before the deadline, pay the quoted service fee, or refund
+   the payer. A second payment is refunded, never burned. SpendTheBits never holds
+   the money.
+3. **Poll `status_url`** with `X-Claim-Token`. About five minutes later the card is
+   in the agent owner's app, in the owner's name. The code is never in the HTTP
+   response unless the owner allowed it for that agent (then `reveal_url` serves
+   it once).
+
+**Who can buy:** a key created under *Agent budgets* in the SpendTheBits app with
+gift cards switched on by its owner (per-card and monthly limits). Any other key
+is refused at verify time, before any payment settles. Over a limit, the store
+asks the owner on their phone instead of refusing (`status: awaiting_owner`).
+
+**Client cap:** `@x402/fetch` refuses any payment above about $1 unless you set
+`spendControls: { maxAmountPerPayment: "$30" }` — every agent developer hits this.
+The script derives it from the amount; override with `MAX_USDC=…`.
+
+**Referrals:** add `?ref=@handle` (or `--ref @handle`) and the referrer receives a
+share of the service fee on-chain from an immutable split when the card is bought.
+
+**Proof (2026-09-20, mainnet):** an unmodified `@x402/fetch` bought a $10 Amazon.com
+card this way — payment `0x5494ea30…` on Base to the counterfactual forwarder, forwarded in seconds, minted to the provider on Ethereum
+~50 s later, card issued in ~4.5 minutes, code never seen by the agent.
+
 ## Ask your owner to pay (Ask-to-Pay)
 
 An agent does not have to hold money to buy something. If its owner uses the
