@@ -155,12 +155,27 @@ asks the owner on their phone instead of refusing (`status: awaiting_owner`).
 `spendControls: { maxAmountPerPayment: "$30" }` — every agent developer hits this.
 The script derives it from the amount; override with `MAX_USDC=…`.
 
-**Referrals:** add `?ref=@handle` (or `--ref @handle`) and the referrer receives a
-share of the service fee on-chain from an immutable split when the card is bought.
+**Referrals:** add `?ref=@handle` (or `--ref @handle`). The referrer's share of the
+service fee goes to an ownerless, immutable split contract, which pays it out
+on-chain once about $0.50 has built up there or 24 hours after the oldest unpaid
+share, whichever comes first. It is not paid in the purchase transaction.
 
-**Proof (2026-09-20, mainnet):** an unmodified `@x402/fetch` bought a $10 Amazon.com
-card this way — payment `0x5494ea30…` on Base to the counterfactual forwarder, forwarded in seconds, minted to the provider on Ethereum
-~50 s later, card issued in ~4.5 minutes, code never seen by the agent.
+**Proof (2026-09-20, mainnet, times UTC):** an unmodified `@x402/fetch` with an agent
+key from the owner's Agents screen bought a $10 Amazon.com card, about 4.5 minutes
+end to end, and the agent never saw the code:
+
+| Time | Step | Transaction |
+|---|---|---|
+| 19:04:01 | quote fee paid | [`0x265b368e…2254`](https://basescan.org/tx/0x265b368e767fb5f92a7b9414417cbcd938bc83929631f161b01e65937ec02254) |
+| 19:04:03 | order paid, 11.224455 USDC to the counterfactual forwarder `0x9f27…F4b1` | [`0x5494ea30…05de`](https://basescan.org/tx/0x5494ea30bbff5f5c2d82ab1a60d8503df9ba7fc931d10c39e872444e48bb05de) |
+| 19:04:15 | forwarder deployed = forwarded (CCTP burn to the card provider) | [`0xd5aecb29…1b89`](https://basescan.org/tx/0xd5aecb298ca6c65faf486d4a3e4021a91ba61d84dea74af3d234d93d352c1b89) |
+| ~19:05 | minted on Ethereum to the provider, ~50 s after payment | |
+| 19:08:28 | card issued to the owner | |
+
+**Codes:** neither script ever prints a card code. If the owner turned on "Let the
+agent read card codes" for this agent, the status response carries `reveal_url`,
+which serves the code exactly once (`GET` with `X-Claim-Token`); the scripts only
+tell you it exists. Guide: https://superapp.spendthebits.com/agents/gift-cards
 
 ## Ask your owner to pay (Ask-to-Pay)
 

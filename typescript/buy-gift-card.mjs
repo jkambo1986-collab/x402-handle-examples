@@ -56,6 +56,12 @@ if (quoted.status !== 201 && quoted.status !== 200) {
   // brand_not_allowed, cannot_quote (amount not a denomination).
   throw new Error(`quote refused (${quoted.status}): ${quote.error ?? ""} ${quote.detail ?? ""}`);
 }
+if (!quote.claim_token) {
+  // A retried quote payment is answered with the same quote but no claim
+  // token (a payment header is seen by proxies; the token is not). The order
+  // is in the owner's app; start a fresh quote to track one from here.
+  throw new Error(`no claim token in the answer: ${quote.note ?? "request a new quote"}`);
+}
 console.log(`${quote.brand} ${quote.face_value} ${quote.currency} (${quote.redeemable_in})`);
 console.log(`total ${quote.total_usdc} USDC = card ${quote.includes.card_usdc} + fee ${quote.includes.service_fee_usdc} + bridge ceiling ${quote.includes.bridge_fee_ceiling_usdc}`);
 if (quote.spend_controls_hint) console.log(quote.spend_controls_hint);

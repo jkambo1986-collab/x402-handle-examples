@@ -6,7 +6,8 @@
     "quote": "node quote.mjs",
     "pay": "node pay.mjs",
     "ask": "node ask-to-pay.mjs",
-    "gift-card": "node buy-gift-card.mjs"
+    "gift-card": "node buy-gift-card.mjs",
+    "gift-card-status": "node gift-card-status.mjs"
   },
   "dependencies": {
     "@402signal/route-guard": "^0.7.7",
