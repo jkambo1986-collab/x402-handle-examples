@@ -15,6 +15,9 @@ const pay = wrapFetchWithPaymentFromConfig(fetch, {
   // Arbitrum, Arc, Solana…) and the client signs the first one it supports — it
   // does not check balances. "eip155:8453" = Base. No gas is needed: the payment
   // is a signed EIP-3009 authorization that the facilitator submits.
+  // Paying on Circle Arc ("eip155:5042")? Arc's USDC (0x3600…0000) is not one of
+  // the client's default assets: add `spendControls: false` (or an allowedAssets
+  // entry) next to `schemes`, or the client refuses before signing.
   schemes: [{ network: "eip155:8453", client: new ExactEvmScheme(account) }],
 });
 

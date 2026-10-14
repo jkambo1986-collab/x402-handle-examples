@@ -84,6 +84,15 @@ BUYER_KEY=0x… python pay.py
 - **One URL, two facilitators, nothing to configure.** USDC on Arc (`eip155:5042`)
   settles through Circle's x402 facilitator; Base, Polygon, Arbitrum and Solana
   settle through Coinbase's. The client sees one standard quote either way.
+- **Paying on Arc needs one client setting.** Arc's USDC is the contract
+  `0x3600000000000000000000000000000000000000`, which `@x402/fetch` does not treat
+  as a default asset, so it refuses the Arc offer before signing ("only default
+  assets or entries in spendControls.allowedAssets are allowed"). Register
+  `eip155:5042` and allow the asset, for example with `spendControls: false` (or an
+  `allowedAssets` entry). Proven on Arc mainnet on 2026-10-13: a $0.01 payment
+  ([`0xeeebc36a…`](https://explorer.arc.io/tx/0xeeebc36a883f3f03575d6ce42c4808ef8d93fe1bb2b16065f2795b1ccc4b3536))
+  and a pass purchase
+  ([`0x93a312bc…`](https://explorer.arc.io/tx/0x93a312bc9a5e1cabab401305253c1dfe6d0b6f0fbd7bd39e204c481a01bd6caf)).
 - **No redirects.** The URL answers directly with or without its trailing slash, so
   guards that fetch with `redirect: "error"` are fine.
 - **Browsers work too.** The endpoints send CORS headers, expose `PAYMENT-REQUIRED`
